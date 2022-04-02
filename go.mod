@@ -1,3 +1,3 @@
-module github.com/snappcloud/health2
+module github.com/snappcloud/health-be
 
 go 1.17
