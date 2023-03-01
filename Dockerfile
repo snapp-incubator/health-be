@@ -1,5 +1,5 @@
 #build stage
-FROM golang:1.18.1 AS builder
+FROM golang:1.20.1 AS builder
 WORKDIR /go/src/app
 
 COPY go.mod /go/src/app/
