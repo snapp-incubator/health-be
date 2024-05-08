@@ -1,2 +1,5 @@
-# health-be
-simple echo http header app
+# Health Be
+
+## Introduction
+
+Network benchmark and healthcheck.
