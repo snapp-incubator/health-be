@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
@@ -12,16 +12,32 @@ import (
 
 func main() {
 	region := os.Getenv("W")
-	log.Println("region: ", region)
+	if region == "" {
+		region = "unknown"
+	}
+	log.Printf("Region: %s\n", region)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		fmt.Fprintf(w, "%v\n---\n", region)
-		for name, headers := range req.Header {
-			for _, h := range headers {
-				fmt.Fprintf(w, "%v: %v\n", name, h)
+		var b strings.Builder
+
+		// Write region and separator
+		b.WriteString(region)
+		b.WriteString("\n---\n")
+
+		// Append all headers
+		for name, values := range req.Header {
+			for _, value := range values {
+				b.WriteString(name)
+				b.WriteString(": ")
+				b.WriteString(value)
+				b.WriteByte('\n')
 			}
 		}
+
+		// Write to the response in one go
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		_, _ = w.Write([]byte(b.String()))
 	})
 
 	h2s := &http2.Server{}
@@ -30,9 +46,9 @@ func main() {
 		Handler: h2c.NewHandler(mux, h2s),
 	}
 
-	log.Println("running server on :8080 ...")
+	log.Println("Server running on :8080 ...")
 
 	if err := h1s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Fatalf("listen:%+s\n", err)
+		log.Fatalf("Server error: %+v", err)
 	}
 }
