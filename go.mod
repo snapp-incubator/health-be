@@ -1,7 +1,9 @@
 module github.com/snappcloud/health-be
 
-go 1.23
+go 1.23.0
 
-require golang.org/x/net v0.31.0
+toolchain go1.23.4
 
-require golang.org/x/text v0.20.0 // indirect
+require golang.org/x/net v0.39.0
+
+require golang.org/x/text v0.24.0 // indirect
