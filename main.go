@@ -36,7 +36,14 @@ func main() {
 		writeJSON(w, http.StatusOK, map[string]string{"region": region})
 	})
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		writeJSON(w, http.StatusOK, map[string]string{"message": "hello from health-be", "region": region})
+		headers := make(map[string][]string, len(r.Header))
+		for k, v := range r.Header {
+			headers[k] = append([]string(nil), v...)
+		}
+		writeJSON(w, http.StatusOK, map[string]any{
+			"headers": headers,
+			"region":  region,
+		})
 	})
 
 	// Enable HTTP/2 over cleartext (h2c) so this binary can directly serve HTTP/2 if placed behind
