@@ -12,9 +12,6 @@ import (
 	"sync/atomic"
 	"syscall"
 	"time"
-
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
 )
 
 var ready int32 // 0 = not ready, 1 = ready
@@ -48,12 +45,14 @@ func main() {
 
 	// Enable HTTP/2 over cleartext (h2c) so this binary can directly serve HTTP/2 if placed behind
 	// a proxy that uses cleartext (useful for testing). For production TLS should be used.
-	h2s := &http2.Server{}
-	handler := h2c.NewHandler(loggingMiddleware(mux), h2s)
+	protocols := new(http.Protocols)
+	protocols.SetHTTP1(true)
+	protocols.SetUnencryptedHTTP2(true)
 
 	server := &http.Server{
-		Addr:    addr,
-		Handler: handler,
+		Addr:      addr,
+		Handler:   loggingMiddleware(mux),
+		Protocols: protocols,
 		// Good defaults
 		ReadTimeout:       5 * time.Second,
 		ReadHeaderTimeout: 2 * time.Second,
